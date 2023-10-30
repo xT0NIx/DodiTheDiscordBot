@@ -1,5 +1,6 @@
 import discord
 from discord import app_commands
+
 import os
 from dotenv import load_dotenv
 
@@ -16,6 +17,13 @@ tree = app_commands.CommandTree(client)
 async def on_ready():
     await tree.sync(guild=discord.Object(id=guild_id))
 
+tree = app_commands.CommandTree(client)
+
+@client.event
+async def on_ready():
+    await tree.sync(guild=discord.Object(id=guildID))
+    print("Ready!")
+
 @client.event
 async def on_message(message):
     if message.author == client.user:
@@ -23,7 +31,7 @@ async def on_message(message):
     
     if message.content.startswith('$hello'):
         await message.channel.send('Hello!')
-
+        
 @tree.command(name = "join_channel", description = "Makes the Dodi bot join your voice channel.", guild=discord.Object(id=guild_id))
 async def join_channel(interaction):
     channel = interaction.channel
@@ -48,5 +56,18 @@ async def leave_channel(interaction):
         await channel.send(f"👋 Farewell, {interaction.user}! It's been a blast, but I must go for now. 👋\n🎤 Mic drop! Leaving the stage... I mean, the voice channel. 🎤\n🏃‍♂️ Zoom! I'm outta here. Thanks for the chitchat and tunes! 🏃‍♂️")
         for vc in interaction.client.voice_clients:
             await vc.disconnect()
+
+@tree.command(name="upload_file",
+              description="Here you can upload a txt file to the bot",
+              guild=discord.Object(id=guildID))
+async def upload_file(interaction, file: discord.Attachment):
+    try:
+        if file.filename.endswith(".txt"):
+            await file.save(f"textfiles/{file.id}_{file.filename}")
+            await interaction.response.send_message(f"Ta-da! Your file's safely tucked away in the magical land of textfiles! 🪄✨ Just saved it as '{file.id}_{file.filename}'! Easy-peasy, right?")
+        else:
+            await interaction.response.send_message("Hey there! 😄 Looks like you've dropped a file, but, uh-oh, it's not a textfile! 🙅‍♂️ I'm a picky bot, you know. I only roll with files that strut their stuff with a .txt ending. 💃 So, what do you say? Got a sassy .txt file for me? 😏💬")
+    except Exception:
+        await interaction.response.send_message(f"failed to save file \n {Exception}")
 
 client.run(token)
