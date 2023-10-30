@@ -68,4 +68,14 @@ async def upload_file(interaction, file: discord.Attachment):
     except Exception:
         await interaction.response.send_message(f"failed to save file \n {Exception}")
 
+
+@tree.command(name="play_sound",
+              description="play a test sound",
+              guild=discord.Object(id=guild_id))
+async def play_sound(interaction):
+    voice_channel = interaction.user.voice.channel
+    vc = await voice_channel.connect()
+    await interaction.response.send_message("now playing sex")
+    vc.play(discord.FFmpegPCMAudio("test.wav"))
+
 client.run(token)
