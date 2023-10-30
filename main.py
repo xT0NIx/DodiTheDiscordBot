@@ -57,7 +57,7 @@ async def leave_channel(interaction):
 
 @tree.command(name="upload_file",
               description="Here you can upload a txt file to the bot",
-              guild=discord.Object(id=guildID))
+              guild=discord.Object(id=guild_id))
 async def upload_file(interaction, file: discord.Attachment):
     try:
         if file.filename.endswith(".txt"):
