@@ -15,6 +15,11 @@ client = discord.Client(intents=intents)
 intents.message_content = True
 tree = app_commands.CommandTree(client)
 
+class Connection:
+    connection = None
+
+CurrentConnection = Connection()
+
 @client.event
 async def on_ready():
     await tree.sync(guild=discord.Object(id=guild_id))
@@ -42,8 +47,7 @@ async def join_channel(interaction):
     else:
         await channel.send(f"🎉 Wheee! It's time to party in the voice channel! 🎉\n🎤 Connecting the dots... I mean, connecting to the channel! 🎤\n🕺💃 Let's groove to the beats and chat like never before, {interaction.user}! 💬🔊")
         voice_channel = interaction.user.voice.channel
-        await voice_channel.connect()
-
+        CurrentConnection.connection = await voice_channel.connect(reconnect=True)
 
 @tree.command(name = "leave_channel", description = "Makes the Dodi bot leave your voice channel.", guild=discord.Object(id=guild_id))
 async def leave_channel(interaction):
@@ -55,6 +59,7 @@ async def leave_channel(interaction):
         await channel.send(f"👋 Farewell, {interaction.user}! It's been a blast, but I must go for now. 👋\n🎤 Mic drop! Leaving the stage... I mean, the voice channel. 🎤\n🏃‍♂️ Zoom! I'm outta here. Thanks for the chitchat and tunes! 🏃‍♂️")
         for vc in interaction.client.voice_clients:
             await vc.disconnect()
+        CurrentConnection.connection = None
 
 
 @tree.command(name="upload_file",
@@ -80,6 +85,13 @@ async def upload_file(interaction, file: discord.Attachment):
     except Exception:
         await interaction.response.send_message(f"failed to save file \n {Exception}")
 
+        
+@tree.command(name="play_sound",
+              description="play a test sound",
+              guild=discord.Object(id=guild_id))
+async def play_sound(interaction):
+    await interaction.response.send_message("now playing audio")
+    CurrentConnection.connection.play(discord.FFmpegPCMAudio("test.wav"))
 
 
 client.run(token)
