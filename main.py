@@ -28,15 +28,15 @@ async def on_ready():
               description = "Makes the Dodi bot join your voice channel.", 
               guild=discord.Object(id=guild_id))
 async def join_channel(interaction):
-    channel = interaction.channel
+    response = interaction.response
     if not interaction.user.voice:
-        await channel.send(f"🤖 Oopsie! I can't join the voice channel if you're not there, {interaction.user}! 🙁")
+        await response.send_message(f"🤖 Oopsie! I can't join the voice channel if you're not there, {interaction.user}! 🙁")
         return
     elif interaction.client.voice_clients:
-        await channel.send(f"🤖 Hey there! I'm already grooving in a voice channel, {interaction.user}. 🎵🎤")
+        await response.send_message(f"🤖 Hey there! I'm already grooving in a voice channel, {interaction.user}. 🎵🎤")
         return
     else:
-        await channel.send(f"🎉 Wheee! It's time to party in the voice channel! 🕺💃 Let's groove to the beats and chat like never before, {interaction.user}! 💬🔊")
+        await response.send_message(f"🎉 Wheee! It's time to party in the voice channel! 🕺💃 Let's groove to the beats and chat like never before, {interaction.user}! 💬🔊")
         voice_channel = interaction.user.voice.channel
         CurrentConnection.connection = await voice_channel.connect(reconnect=True)
 
@@ -44,12 +44,12 @@ async def join_channel(interaction):
               description = "Makes the Dodi bot leave your voice channel.", 
               guild=discord.Object(id=guild_id))
 async def leave_channel(interaction):
-    channel = interaction.channel
+    response = interaction.response
     if not interaction.client.voice_clients:
-        await channel.send(f"🤖 Wait, I wasn't even in a voice channel to begin with, {interaction.user}! 😅")
+        await response.send_message(f"🤖 Wait, I wasn't even in a voice channel to begin with, {interaction.user}! 😅")
         return
     else:
-        await channel.send(f"👋 Farewell, {interaction.user}! It's been a blast, but I must go for now. 👋")
+        await response.send_message(f"👋 Farewell, {interaction.user}! It's been a blast, but I must go for now. 👋")
         for vc in interaction.client.voice_clients:
             await vc.disconnect()
         CurrentConnection.connection = None
