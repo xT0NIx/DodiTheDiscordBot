@@ -1,5 +1,6 @@
 # Custom
 textfiles/*.txt
+soundfiles/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

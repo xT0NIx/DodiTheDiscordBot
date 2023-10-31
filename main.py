@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 import pyttsx3
 
 load_dotenv()
-token = os.getenv('DISCORD_BOT_SECRET')
+token = os.getenv('DISCORD_BOT_SECRET') # TEST_TOKEN or DISCORD_BOT_SECRET
 guild_id = os.getenv('GUILD_ID')
 
 intents = discord.Intents.default()
@@ -68,10 +68,11 @@ async def leave_channel(interaction):
 async def upload_file(interaction, file: discord.Attachment):
     try:
         if file.filename.endswith(".txt"):
+            await interaction.response.send_message(f"now creating {file.filename}")
             text_file_path = str(f"textfiles/{file.id}_{file.filename}")
 
             await file.save(text_file_path)
-            await interaction.response.send_message(f"Ta-da! Your file's safely tucked away in the magical land of textfiles! 🪄✨ Just saved it as '{file.id}_{file.filename}'! Easy-peasy, right?")
+            await interaction.channel.send(f"Ta-da! Your file's safely tucked away in the magical land of textfiles! 🪄✨ Just saved it as '{file.id}_{file.filename}'! Easy-peasy, right?")
 
             with open(text_file_path) as f:
                 data = f.read().replace('\n',' ')
@@ -92,6 +93,43 @@ async def upload_file(interaction, file: discord.Attachment):
 async def play_sound(interaction):
     await interaction.response.send_message("now playing audio")
     CurrentConnection.connection.play(discord.FFmpegPCMAudio("test.wav"))
+
+
+@tree.command(name="tell_story",
+              description="tell us a story based on a txt file",
+              guild=discord.Object(id=guild_id))
+async def tell_story(interaction, file: discord.Attachment):
+        if file.filename.endswith(".txt"):
+            await interaction.response.send_message(f"now creating {file.filename}")
+            text_file_path = str(f"textfiles/{file.id}_{file.filename}")
+
+            await file.save(text_file_path)
+            await interaction.channel.send(f"Ta-da! Your file's safely tucked away in the magical land of textfiles! 🪄✨ Just saved it as '{file.id}_{file.filename}'! Easy-peasy, right?")
+
+            with open(text_file_path) as f:
+                data = f.read().replace('\n',' ')
+            speaker = pyttsx3.init()
+            soundfile_path = f"soundfiles/{file.id}_{os.path.splitext(file.filename)[0]}.mp3"
+            speaker.save_to_file(data, soundfile_path)
+            speaker.runAndWait()
+            speaker.stop()
+            await interaction.channel.send(f"saved  as '{file.id}_{os.path.splitext(file.filename)[0]}.mp3'!")
+
+            if not interaction.user.voice:
+                await interaction.channel.send(f"🤖 Oopsie! I can't join the voice channel if you're not there, {interaction.user}! 🙁\n👻 It's like trying to have a conversation with a ghost – can't do that! 👻\n🔒 Make sure you're in a voice channel, and I'll be there in a jiffy! 🔓")
+                return
+            elif interaction.client.voice_clients:
+                await interaction.channel.send(f"🤖 Hey there! I'm already grooving in a voice channel, {interaction.user}. Double the fun! 🎵🎤\n🔊 Let the party continue, ready to chat and jam. 🔊\n📢 I'm here and ready to roll, no need to rejoin! 🎉")
+            else:
+                await interaction.channel.send(f"🎉 Wheee! It's time to party in the voice channel! 🎉\n🎤 Connecting the dots... I mean, connecting to the channel! 🎤\n🕺💃 Let's groove to the beats and chat like never before, {interaction.user}! 💬🔊")
+                voice_channel = interaction.user.voice.channel
+                CurrentConnection.connection = await voice_channel.connect(reconnect=True)
+
+            CurrentConnection.connection.play(discord.FFmpegPCMAudio(soundfile_path))
+            
+
+        else:
+            await interaction.response.send_message("Hey there! 😄 Looks like you've dropped a file, but, uh-oh, it's not a textfile! 🙅‍♂️ I'm a picky bot, you know. I only roll with files that strut their stuff with a .txt ending. 💃 So, what do you say? Got a sassy .txt file for me? 😏💬")
 
 
 client.run(token)
