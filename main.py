@@ -74,15 +74,33 @@ async def upload_file(interaction, file: discord.Attachment):
             await file.save(text_file_path)
             await interaction.channel.send(f"Ta-da! Your file's safely tucked away in the magical land of textfiles! 🪄✨ Just saved it as '{file.id}_{file.filename}'! Easy-peasy, right?")
 
-            with open(text_file_path) as f:
-                data = f.read().replace('\n',' ')
-            speaker = pyttsx3.init()
-            speaker.save_to_file(data, f"soundfiles/{file.id}_.mp3")
-            speaker.runAndWait()
-
-            speaker.stop()
         else:
             await interaction.response.send_message("Hey there! 😄 Looks like you've dropped a file, but, uh-oh, it's not a textfile! 🙅‍♂️ I'm a picky bot, you know. I only roll with files that strut their stuff with a .txt ending. 💃 So, what do you say? Got a sassy .txt file for me? 😏💬")
+    except Exception:
+        await interaction.response.send_message(f"failed to save file \n {Exception}")
+
+
+@tree.command(name="convert_file",
+              description="Here you can convert a uploaded file",
+              guild=discord.Object(id=guild_id))
+async def convert_file(interaction, file: str):
+    try:
+        text_file_path = f"textfiles/{file}"
+        if file.endswith(".txt") and os.path.exists(text_file_path):
+
+            await interaction.response.send_message(f"converting: {text_file_path}")
+            with open(text_file_path) as f:
+                data = f.read().replace('\n',' ')
+            
+            speaker = pyttsx3.init()
+            sound_file_path = f"soundfiles/{os.path.splitext(file)[0]}.mp3"
+            speaker.save_to_file(data, sound_file_path)
+            speaker.runAndWait()
+            speaker.stop()
+
+            await interaction.channel.send(f"saved to: {sound_file_path}")
+        else:
+            await interaction.response.send_message("That file doesnt exist or isnt a txt file")
     except Exception:
         await interaction.response.send_message(f"failed to save file \n {Exception}")
 
@@ -90,9 +108,11 @@ async def upload_file(interaction, file: discord.Attachment):
 @tree.command(name="play_sound",
               description="play a test sound",
               guild=discord.Object(id=guild_id))
-async def play_sound(interaction):
-    await interaction.response.send_message("now playing audio")
-    CurrentConnection.connection.play(discord.FFmpegPCMAudio("test.wav"))
+async def play_sound(interaction, file: str):
+    sound_file_path = f"soundfiles/{file}"
+    if os.path.exists(sound_file_path):
+        await interaction.response.send_message(f"now playing {sound_file_path}")
+        CurrentConnection.connection.play(discord.FFmpegPCMAudio(sound_file_path))
 
 
 @tree.command(name="tell_story",
