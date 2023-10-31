@@ -23,40 +23,33 @@ CurrentConnection = Connection()
 @client.event
 async def on_ready():
     await tree.sync(guild=discord.Object(id=guild_id))
-    print("Ready!")
 
-
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
-    
-    if message.content.startswith('$hello'):
-        await message.channel.send('Hello!')
-
-
-@tree.command(name = "join_channel", description = "Makes the Dodi bot join your voice channel.", guild=discord.Object(id=guild_id))
+@tree.command(name = "join_channel", 
+              description = "Makes the Dodi bot join your voice channel.", 
+              guild=discord.Object(id=guild_id))
 async def join_channel(interaction):
     channel = interaction.channel
     if not interaction.user.voice:
-        await channel.send(f"🤖 Oopsie! I can't join the voice channel if you're not there, {interaction.user}! 🙁\n👻 It's like trying to have a conversation with a ghost – can't do that! 👻\n🔒 Make sure you're in a voice channel, and I'll be there in a jiffy! 🔓")
+        await channel.send(f"🤖 Oopsie! I can't join the voice channel if you're not there, {interaction.user}! 🙁")
         return
     elif interaction.client.voice_clients:
-        await channel.send(f"🤖 Hey there! I'm already grooving in a voice channel, {interaction.user}. Double the fun! 🎵🎤\n🔊 Let the party continue, ready to chat and jam. 🔊\n📢 I'm here and ready to roll, no need to rejoin! 🎉")
+        await channel.send(f"🤖 Hey there! I'm already grooving in a voice channel, {interaction.user}. 🎵🎤")
         return
     else:
-        await channel.send(f"🎉 Wheee! It's time to party in the voice channel! 🎉\n🎤 Connecting the dots... I mean, connecting to the channel! 🎤\n🕺💃 Let's groove to the beats and chat like never before, {interaction.user}! 💬🔊")
+        await channel.send(f"🎉 Wheee! It's time to party in the voice channel! 🕺💃 Let's groove to the beats and chat like never before, {interaction.user}! 💬🔊")
         voice_channel = interaction.user.voice.channel
         CurrentConnection.connection = await voice_channel.connect(reconnect=True)
 
-@tree.command(name = "leave_channel", description = "Makes the Dodi bot leave your voice channel.", guild=discord.Object(id=guild_id))
+@tree.command(name = "leave_channel", 
+              description = "Makes the Dodi bot leave your voice channel.", 
+              guild=discord.Object(id=guild_id))
 async def leave_channel(interaction):
     channel = interaction.channel
     if not interaction.client.voice_clients:
-        await channel.send(f"🤖 Wait, I wasn't even in a voice channel to begin with, {interaction.user}! 😅\n🚫 Ghost bot, reporting in, there's no need for me to leave! 👻")
+        await channel.send(f"🤖 Wait, I wasn't even in a voice channel to begin with, {interaction.user}! 😅")
         return
     else:
-        await channel.send(f"👋 Farewell, {interaction.user}! It's been a blast, but I must go for now. 👋\n🎤 Mic drop! Leaving the stage... I mean, the voice channel. 🎤\n🏃‍♂️ Zoom! I'm outta here. Thanks for the chitchat and tunes! 🏃‍♂️")
+        await channel.send(f"👋 Farewell, {interaction.user}! It's been a blast, but I must go for now. 👋")
         for vc in interaction.client.voice_clients:
             await vc.disconnect()
         CurrentConnection.connection = None
@@ -68,16 +61,16 @@ async def leave_channel(interaction):
 async def upload_file(interaction, file: discord.Attachment):
     try:
         if file.filename.endswith(".txt"):
-            await interaction.response.send_message(f"now creating {file.filename}")
+            await interaction.response.send_message(f"⌛ Now creating {file.filename}")
             text_file_path = str(f"textfiles/{file.id}_{file.filename}")
 
             await file.save(text_file_path)
-            await interaction.channel.send(f"Ta-da! Your file's safely tucked away in the magical land of textfiles! 🪄✨ Just saved it as '{file.id}_{file.filename}'! Easy-peasy, right?")
+            await interaction.channel.send(f"💾 Your file's safely tucked away in the magical land of textfiles! 🪄✨ Just saved it as '{file.id}_{file.filename}'!")
 
         else:
-            await interaction.response.send_message("Hey there! 😄 Looks like you've dropped a file, but, uh-oh, it's not a textfile! 🙅‍♂️ I'm a picky bot, you know. I only roll with files that strut their stuff with a .txt ending. 💃 So, what do you say? Got a sassy .txt file for me? 😏💬")
+            await interaction.response.send_message(f"🤖 Looks like you've dropped a file, but, uh-oh, it's not a textfile, {interaction.user}! 🙅‍♂️ I'm a picky bot, I only roll with files that strut their stuff with a .txt ending. 💃")
     except Exception:
-        await interaction.response.send_message(f"failed to save file \n {Exception}")
+        await interaction.response.send_message(f"⚠️ Failed to save file \n {Exception}")
 
 
 @tree.command(name="convert_file",
@@ -88,7 +81,7 @@ async def convert_file(interaction, file: str):
         text_file_path = f"textfiles/{file}"
         if file.endswith(".txt") and os.path.exists(text_file_path):
 
-            await interaction.response.send_message(f"converting: {text_file_path}")
+            await interaction.response.send_message(f"⌛ Converting: {text_file_path}")
             with open(text_file_path) as f:
                 data = f.read().replace('\n',' ')
             
@@ -98,33 +91,33 @@ async def convert_file(interaction, file: str):
             speaker.runAndWait()
             speaker.stop()
 
-            await interaction.channel.send(f"saved to: {sound_file_path}")
+            await interaction.channel.send(f"💾 Your sound file has been saved at the enchanted location: {sound_file_path}! Get ready to enjoy some magical sounds! 🎶🎧")
         else:
-            await interaction.response.send_message("That file doesnt exist or isnt a txt file")
+            await interaction.response.send_message("ℹ️ That file doesnt exist or isnt a .txt file.")
     except Exception:
-        await interaction.response.send_message(f"failed to save file \n {Exception}")
+        await interaction.response.send_message(f"⚠️ Failed to save file \n {Exception}")
 
         
 @tree.command(name="play_sound",
-              description="play a test sound",
+              description="Plays a test sound.",
               guild=discord.Object(id=guild_id))
 async def play_sound(interaction, file: str):
     sound_file_path = f"soundfiles/{file}"
     if os.path.exists(sound_file_path):
-        await interaction.response.send_message(f"now playing {sound_file_path}")
+        await interaction.response.send_message(f"🎧 Now playing: {sound_file_path}")
         CurrentConnection.connection.play(discord.FFmpegPCMAudio(sound_file_path))
 
 
 @tree.command(name="tell_story",
-              description="tell us a story based on a txt file",
+              description="Tells you a story based on a .txt file.",
               guild=discord.Object(id=guild_id))
 async def tell_story(interaction, file: discord.Attachment):
         if file.filename.endswith(".txt"):
-            await interaction.response.send_message(f"now creating {file.filename}")
+            await interaction.response.send_message(f"🚧 Now creating: {file.filename}")
             text_file_path = str(f"textfiles/{file.id}_{file.filename}")
 
             await file.save(text_file_path)
-            await interaction.channel.send(f"Ta-da! Your file's safely tucked away in the magical land of textfiles! 🪄✨ Just saved it as '{file.id}_{file.filename}'! Easy-peasy, right?")
+            await interaction.channel.send(f"💾 Your file's safely tucked away in the magical land of textfiles! 🪄✨ Just saved it as '{file.id}_{file.filename}'!")
 
             with open(text_file_path) as f:
                 data = f.read().replace('\n',' ')
@@ -133,15 +126,15 @@ async def tell_story(interaction, file: discord.Attachment):
             speaker.save_to_file(data, soundfile_path)
             speaker.runAndWait()
             speaker.stop()
-            await interaction.channel.send(f"saved  as '{file.id}_{os.path.splitext(file.filename)[0]}.mp3'!")
+            await interaction.channel.send(f"💾 Your sound file has been saved as: '{file.id}_{os.path.splitext(file.filename)[0]}.mp3'!")
 
             if not interaction.user.voice:
-                await interaction.channel.send(f"🤖 Oopsie! I can't join the voice channel if you're not there, {interaction.user}! 🙁\n👻 It's like trying to have a conversation with a ghost – can't do that! 👻\n🔒 Make sure you're in a voice channel, and I'll be there in a jiffy! 🔓")
+                await interaction.channel.send(f"🤖 Oopsie! I can't join the voice channel if you're not there, {interaction.user}! 🙁")
                 return
             elif interaction.client.voice_clients:
-                await interaction.channel.send(f"🤖 Hey there! I'm already grooving in a voice channel, {interaction.user}. Double the fun! 🎵🎤\n🔊 Let the party continue, ready to chat and jam. 🔊\n📢 I'm here and ready to roll, no need to rejoin! 🎉")
+                await interaction.channel.send(f"🤖 Hey there! I'm already grooving in a voice channel, {interaction.user}. 🎵🎤")
             else:
-                await interaction.channel.send(f"🎉 Wheee! It's time to party in the voice channel! 🎉\n🎤 Connecting the dots... I mean, connecting to the channel! 🎤\n🕺💃 Let's groove to the beats and chat like never before, {interaction.user}! 💬🔊")
+                await interaction.channel.send(f"🎉 Wheee! It's time to party in the voice channel! 🕺💃 Let's groove to the beats and chat like never before, {interaction.user}! 💬🔊")
                 voice_channel = interaction.user.voice.channel
                 CurrentConnection.connection = await voice_channel.connect(reconnect=True)
 
@@ -149,7 +142,7 @@ async def tell_story(interaction, file: discord.Attachment):
             
 
         else:
-            await interaction.response.send_message("Hey there! 😄 Looks like you've dropped a file, but, uh-oh, it's not a textfile! 🙅‍♂️ I'm a picky bot, you know. I only roll with files that strut their stuff with a .txt ending. 💃 So, what do you say? Got a sassy .txt file for me? 😏💬")
+            await interaction.response.send_message(f"🤖 Looks like you've dropped a file, but, uh-oh, it's not a textfile, {interaction.user}! 🙅‍♂️ I'm a picky bot, I only roll with files that strut their stuff with a .txt ending. 💃")
 
 
 client.run(token)
