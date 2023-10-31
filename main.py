@@ -107,9 +107,11 @@ async def convert_file(interaction, file: str):
 @tree.command(name="play_sound",
               description="play a test sound",
               guild=discord.Object(id=guild_id))
-async def play_sound(interaction):
-    await interaction.response.send_message("now playing audio")
-    CurrentConnection.connection.play(discord.FFmpegPCMAudio("test.wav"))
+async def play_sound(interaction, file: str):
+    sound_file_path = f"soundfiles/{file}"
+    if os.path.exists(sound_file_path):
+        await interaction.response.send_message(f"now playing {sound_file_path}")
+        CurrentConnection.connection.play(discord.FFmpegPCMAudio(sound_file_path))
 
 
 client.run(token)
