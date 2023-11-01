@@ -3,8 +3,9 @@ from discord import app_commands
 
 import os
 from dotenv import load_dotenv
+import enum
 
-import pyttsx3
+from gtts import gTTS
 
 load_dotenv()
 token = os.getenv('DISCORD_BOT_SECRET') # TEST_TOKEN or DISCORD_BOT_SECRET
@@ -18,11 +19,16 @@ tree = app_commands.CommandTree(client)
 class Connection:
     connection = None
 
+class Language(enum.Enum):
+    deutsch = "de"
+    english = "en"
+
 CurrentConnection = Connection()
 
 @client.event
 async def on_ready():
     await tree.sync(guild=discord.Object(id=guild_id))
+    print("Ready!")
 
 @tree.command(name = "join_channel", 
               description = "Makes the Dodi bot join your voice channel.", 
@@ -76,7 +82,7 @@ async def upload_file(interaction, file: discord.Attachment):
 @tree.command(name="convert_file",
               description="Here you can convert a uploaded file",
               guild=discord.Object(id=guild_id))
-async def convert_file(interaction, file: str):
+async def convert_file(interaction, file: str, language: Language):
     try:
         text_file_path = f"textfiles/{file}"
         if file.endswith(".txt") and os.path.exists(text_file_path):
@@ -85,11 +91,9 @@ async def convert_file(interaction, file: str):
             with open(text_file_path) as f:
                 data = f.read().replace('\n',' ')
             
-            speaker = pyttsx3.init()
+            speaker = gTTS(text=data, lang=language.value, slow=False) 
             sound_file_path = f"soundfiles/{os.path.splitext(file)[0]}.mp3"
-            speaker.save_to_file(data, sound_file_path)
-            speaker.runAndWait()
-            speaker.stop()
+            speaker.save(sound_file_path)
 
             await interaction.channel.send(f"💾 Your sound file has been saved at the enchanted location: {sound_file_path}! Get ready to enjoy some magical sounds! 🎶🎧")
         else:
@@ -111,7 +115,7 @@ async def play_sound(interaction, file: str):
 @tree.command(name="tell_story",
               description="Tells you a story based on a .txt file.",
               guild=discord.Object(id=guild_id))
-async def tell_story(interaction, file: discord.Attachment):
+async def tell_story(interaction, file: discord.Attachment, language: Language):
         if file.filename.endswith(".txt"):
             await interaction.response.send_message(f"🚧 Now creating: {file.filename}")
             text_file_path = str(f"textfiles/{file.id}_{file.filename}")
@@ -121,11 +125,9 @@ async def tell_story(interaction, file: discord.Attachment):
 
             with open(text_file_path) as f:
                 data = f.read().replace('\n',' ')
-            speaker = pyttsx3.init()
-            soundfile_path = f"soundfiles/{file.id}_{os.path.splitext(file.filename)[0]}.mp3"
-            speaker.save_to_file(data, soundfile_path)
-            speaker.runAndWait()
-            speaker.stop()
+            speaker = gTTS(text=data, lang=language.value, slow=False) 
+            sound_file_path = f"soundfiles/{file.id}_{os.path.splitext(file.filename)[0]}.mp3"
+            speaker.save(sound_file_path)
             await interaction.channel.send(f"💾 Your sound file has been saved as: '{file.id}_{os.path.splitext(file.filename)[0]}.mp3'!")
 
             if not interaction.user.voice:
@@ -138,7 +140,7 @@ async def tell_story(interaction, file: discord.Attachment):
                 voice_channel = interaction.user.voice.channel
                 CurrentConnection.connection = await voice_channel.connect(reconnect=True)
 
-            CurrentConnection.connection.play(discord.FFmpegPCMAudio(soundfile_path))
+            CurrentConnection.connection.play(discord.FFmpegPCMAudio(sound_file_path))
             
 
         else:
