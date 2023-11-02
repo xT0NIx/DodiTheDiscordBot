@@ -153,12 +153,12 @@ async def tell_story(interaction, file: discord.Attachment, language: Language):
               description="Take a picture.",
               guild=discord.Object(id=guild_id))
 async def snapshot(interaction):
+    await interaction.response.send_message("Taking a snapshot")
     camera = PiCamera()
     camera.resolution = (1024, 768)
-    camera.start_preview()
     sleep(2)
     camera.capture('imagefiles/foo.jpg')
-    await interaction.response.send_message(file=discord.File('imagefiles/foo.jpg'))
+    await interaction.channel.send(file=discord.File('imagefiles/foo.jpg'))
 
 
 client.run(token)
