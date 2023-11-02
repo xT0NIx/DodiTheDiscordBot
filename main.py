@@ -156,7 +156,6 @@ async def snapshot(interaction):
     await interaction.response.send_message("Taking a snapshot")
     camera = PiCamera()
     camera.resolution = (1024, 768)
-    sleep(2)
     camera.capture('imagefiles/foo.jpg')
     await interaction.channel.send(file=discord.File('imagefiles/foo.jpg'))
 
