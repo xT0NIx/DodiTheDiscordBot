@@ -158,6 +158,7 @@ async def snapshot(interaction):
     camera.resolution = (1024, 768)
     camera.capture(f'imagefiles/{interaction.id}_image.jpg')
     await interaction.response.send_message(file=discord.File(f'imagefiles/{interaction.id}_image.jpg'))
+    camera.close()
 
 
 client.run(token)
