@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 import enum
 
 from gtts import gTTS
+from time import sleep
+from picamera import PiCamera
 
 load_dotenv()
 token = os.getenv('DISCORD_BOT_SECRET') # TEST_TOKEN or DISCORD_BOT_SECRET
@@ -145,6 +147,17 @@ async def tell_story(interaction, file: discord.Attachment, language: Language):
 
         else:
             await interaction.response.send_message(f"🤖 Looks like you've dropped a file, but, uh-oh, it's not a textfile, {interaction.user}! 🙅‍♂️ I'm a picky bot, I only roll with files that strut their stuff with a .txt ending. 💃")
+
+
+@tree.command(name="snapshot",
+              description="Take a picture.",
+              guild=discord.Object(id=guild_id))
+async def snapshot(interaction):
+    camera = PiCamera()
+    camera.rotation = 180
+    camera.resolution = (1024, 768)
+    camera.capture(f'imagefiles/{interaction.id}_image.jpg')
+    await interaction.response.send_message(file=discord.File(f'imagefiles/{interaction.id}_image.jpg'))
 
 
 client.run(token)
