@@ -1,5 +1,5 @@
 # Use an official Python runtime for ARM architecture
-FROM arm32v7/python:3.8-slim
+FROM arm32v7/python:3.10-slim
 
 # Set the working directory in the container
 WORKDIR /app
